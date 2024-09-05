@@ -56,10 +56,10 @@ jobs:
         run: |
           terraform init
           terraform destroy -auto-approve
-          - name: GitHub Action for DigitalOcean - doctl
-          uses: digitalocean/action-doctl@v2
-          with:
-            token: ${{ secrets.DO_TOKEN }}
+      - name: GitHub Action for DigitalOcean - doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DO_TOKEN }}
   
       - name: Configure kubectl for the DigitalOcean Cluster
         run: |
