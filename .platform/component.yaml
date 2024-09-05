@@ -9,21 +9,22 @@ metadata:
     certificate_account_email: platforms@vee.codes
     certificate_environment_type: staging
     grafana_obs_api: https://grafana.cluster-ec2-base-mr.spec.platform.vee.codes
+    public_ip: 35.169.155.53
   annotations:
     github.com/project-slug: veecode-homolog/dynamic-cluster-gazin
-    infracost/project: dynamic-cluster-gazin 
+    infracost/project: dynamic-cluster-gazin
     backstage.io/techdocs-ref: dir:..
-    github.com/workflows: terraform-deploy.yml,start-instance.yml,stop-instance.yml,kubeconfig.yml,terraform-destroy.yml,infracost.yml   
-    cluster/instructions: |
-      ssh -i ./key-pair.pem -o StrictHostKeyChecking=no ${EC2_USER}@${EC2_HOST} 
-      "mkdir -p .kube && k3d kubeconfig get ${CLUSTER_NAME} > ~/.kube/config"
-      scp -i ./key-pair.pem ${EC2_USER}@${EC2_HOST}:~/.kube/config ./config
-      yq e 'del(.clusters[0].cluster.certificate-authority-data)' -i ~/.kube/config
-      yq e '.clusters[0].cluster.insecure-skip-tls-verify=true' config -i
-      yq e '.clusters[0].cluster.server = "https://${EC2_HOST}:38517"' config -i
+    github.com/workflows: terraform-deploy.yml,start-instance.yml,stop-instance.yml,kubeconfig.yml,terraform-destroy.yml,infracost.yml
+    cluster/instructions: "# Run the following commands to import the kubeconfig:\n  ssh -i ./cert.pem -o StrictHostKeyChecking=no $USERNAME@$35.169.155.53 \"mkdir -p .kube && k3d kubeconfig get k3s > ~/.kube/config\"\n  scp -i ./cert.pem $USERNAME@$35.169.155.53:~/.kube/config ~/.kube/config-dynamic-cluster-gazin\n  yq -e 'del(.clusters[0].cluster.certificate-authority-data) | .clusters[0].cluster.insecure-skip-tls-verify=true | .clusters[].cluster.server |= sub(\"0.0.0.0\", \"35.169.155.53\")' -i ~/.kube/config-dynamic-cluster-gazin\n  export KUBECONFIG=~/.kube/config-dynamic-cluster-gazin\n  kubectl get pods -A\n"
+    veecode/cluster-name: dynamic-cluster-gazin
+    kubernetes.io/secret-name: dynamic-cluster-gazin-secret
+    kubernetes.io/secret-namespace: veecode-homolog
+    kubernetes.io/auth-provider: custom
+    kubernetes.io/api-server: https://35.169.155.53:6550
+    kubernetes.io/skip-tls-verify: "true"
+    kubernetes.io/skip-metrics-lookup: "false"
 spec:
   type: ec2
   lifecycle: experimental
   owner: "group:default/admin"
   environment: 'environment:default/pet-environment-homolog'
-  
